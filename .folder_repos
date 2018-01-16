@@ -1,4 +1,4 @@
-adapter_seafile=adapters/seafile
+seafile=adapters/seafile
 tumf_systemd_service=roles/tumf.systemd-service
 geerlingguy_nginx=roles/geerlingguy.nginx
 thefinn93_letsencrypt=roles/thefinn93.letsencrypt
