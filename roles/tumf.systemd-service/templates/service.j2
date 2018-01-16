@@ -132,6 +132,10 @@ RestartPreventExitStatus={{ systemd_service_Service_RestartPreventExitStatus }}
 GuessMainPID={{ systemd_service_Service_GuessMainPID }}
 {% endif -%}
 
+{% if systemd_service_Service_RemainAfterExit is defined %}
+RemainAfterExit={{ systemd_service_Service_RemainAfterExit }}
+{% endif -%}
+
 [Install]
 {% if systemd_service_Install_WantedBy is defined %}
 WantedBy={{ systemd_service_Install_WantedBy }}
