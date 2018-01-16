@@ -1,0 +1,452 @@
+- name: "[setting defaults]"
+  set_fact:
+    seafile_user: "{{ freckle_folder_vars.owner }}"
+    seafile_group: "{{ freckle_folder_vars.group | default(omit) }}"
+    seafile_dir: "{{ freckle_path }}"
+    seafile_version: "{{ freckle_folder_vars.seafile_version | default('6.2.3') }}"
+    seafile_server_name: "{{ freckle_folder_vars.seafile_server_name | default('Seafile') }}"
+    seafile_domain: "{{ freckle_folder_vars.seafile_domain | default('localhost') }}"
+    seafile_seahub_port: "{{ freckle_folder_vars.seahub_port | default(8000) }}"
+    seafile_fileserver_port: "{{ freckle_folder_vars.seafile_fileserver_port | default(8082) }}"
+    seafile_backend: "{{ freckle_folder_vars.seafile_backend | default('sqlite') }}"
+    seafile_ulimit: "{{ freckle_folder_vars.seafile_ulimit | default(30000) }}"
+    seafile_webserver: "{{ freckle_folder_vars.seafile_webserver | default('nginx') }}"
+    seafile_webserver_port: "{{ freckle_folder_vars.seafile_webserver_port | default(80) }}"
+    seafile_db_password: "{{ freckle_folder_vars.seafile_db_password | default(omit) }}"
+    seafile_disable_webdav: "{{ freckle_folder_vars.seafile_disable_webdav | default(false) }}"
+    seafile_admin_email: "{{ freckle_folder_vars.seafile_admin_email | mandatory }}"
+    request_https_cert: "{{ freckle_folder_vars.request_https_cert | default(false) }}"
+
+- name: "[setting letsencrypt email]"
+  set_fact:
+    letsencrypt_email: "{{ freckle_folder_vars.letsencrypt_email | default(seafile_admin_email) }}"
+    letsencrypt_cert_domains:
+      - "{{ seafile_domain }}"
+  when: request_https_cert
+
+- name: "[setting https port]"
+  set_fact:
+    seafile_webserver_port: '443'
+  when: seafile_webserver_port == '80' and request_https_cert
+
+- name: "[set webserver port to service port if no webserver]"
+  set_fact:
+    seafile_webserver_port: "{{ seafile_seahub_port }}"
+  when: seafile_webserver == 'none'
+
+- name: "[setting external url]"
+  set_fact:
+    seafile_external_url: "http://{{ seafile_domain }}"
+  when: seafile_webserver_port != '443'
+
+- name: "[setting external url:port]"
+  set_fact:
+    seafile_external_url: "{{ seafile_external_url }}:{{ seafile_port }}"
+  when: seafile_webserver_port != '443' and seafile_webserver_port != '80'
+
+- name: "[setting external url (https)]"
+  set_fact:
+    seafile_external_url: "https://{{ seafile_domain }}"
+  when: seafile_webserver_port == '443'
+
+- name: "[fail if unsupported backend]"
+  fail: msg="Backend '{{ seafile_backend }}' not supported. Only 'sqlite' and 'mysql' allowed."
+  when: seafile_backend != 'sqlite' and seafile_backend != 'mysql'
+
+- name: "[fail if unsupported webserver]"
+  fail: msg="webserver '{{ seafile_webserver }}' not supported. Only 'none' and 'nginx' allowed."
+  when: seafile_webserver != 'none' and seafile_webserver != 'nginx'
+
+- name: "[fail if no webserver but https cert]"
+  fail: msg="can't use option 'request_https_cert' when using no webserver."
+  when: request_https_cert and seafile_webserver == 'none'
+
+- name: "[setting vars apt]"
+  set_fact:
+    dependencies:
+      - sudo
+      - python
+      - python2.7
+      - libpython2.7
+      - python-setuptools
+      - python-imaging
+      - python-ldap
+      - python-urllib3
+      - ffmpeg
+      - python-pip
+      - python-memcache
+  when: ansible_pkg_mgr == 'apt'
+
+- name: "[setting vars yum]"
+  set_fact:
+    dependencies:
+      - sudo
+      - python-imaging
+      - MySQL-python
+      - python-memcached
+      - python-ldap
+      - python-urllib3
+      - ffmpeg
+      - ffmpeg-devel
+  when: ansible_pkg_mgr == 'yum'
+
+- name: "[adding sqlite deb dependency]"
+  set_fact:
+    dependencies: "{{ dependencies }} + ['sqlite3']"
+  when: ansible_pkg_mgr == 'apt' and seafile_backend == 'sqlite'
+
+- name: "[adding mysql deb dependency]"
+  set_fact:
+    dependencies: "{{ dependencies }} + ['python-mysqldb']"
+  when: ansible_pkg_mgr == 'apt' and seafile_backend == 'mysql'
+
+- name: "[setting pip dependencies]"
+  set_fact:
+    pip_dependencies:
+      - pillow
+      - moviepy
+
+- name: "[setting seafile systemd 'after' value for sqlite]"
+  set_fact:
+    seafile_systemd_after:
+      - network.target
+  when: seafile_backend == 'sqlite'
+
+- name: "[setting seafile systemd 'after' value for mysql]"
+  set_fact:
+    seafile_systemd_after:
+      - network.target
+      - mysql.target
+  when: seafile_backend == 'mysql'
+
+- name: creating seafile group
+  group:
+    name: "{{ seafile_group }}"
+  when: seafile_group is defined
+
+- name: creating seafile user
+  user:
+    name: "{{ seafile_user }}"
+    group: "{{ seafile_group | default(omit) }}"
+    append: yes
+
+- name: creating seafile package dir
+  file:
+    path: "{{ seafile_dir }}/installed"
+    state: directory
+    recurse: true
+  become: true
+
+- name: downloading seafile
+  get_url:
+    url: "https://download.seadrive.org/seafile-server_{{ seafile_version }}_x86-64.tar.gz"
+    validate_certs: yes
+    dest: "{{ seafile_dir }}/installed/seafile-server_{{ seafile_version }}_x86-64.tar.gz"
+  register: target_path
+  become: true
+
+- name: "extracting downloaded file to '{{ seafile_dir }}'"
+  unarchive:
+    src: "{{ target_path.dest }}"
+    dest: "{{ seafile_dir }}"
+    creates: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}"
+  become: true
+
+- name: create seafile config directory
+  file:
+    path: "{{ seafile_dir }}/conf"
+    state: directory
+  become: true
+
+- name: changing application file permissions
+  file:
+    path: "{{ seafile_dir }}"
+    owner: "{{ seafile_user }}"
+    group: "{{ seafile_group | default(omit) }}"
+    recurse: true
+  become: true
+
+- name: installing dependencies
+  package:
+    name: "{{ item }}"
+  with_items: "{{ dependencies }}"
+  become: true
+
+- name: installing pip dependencies
+  pip:
+    name: "{{ item }}"
+  with_items: "{{ pip_dependencies }}"
+  become: true
+
+- name: "[creating admin.txt file, in case it doesn't exist yet]"
+  copy:
+    content="{\"email\"{{ ":" }} \"{{ seafile_admin_email }}\", \"password\"{{ ":" }} \"change_me\"}"
+    dest="{{ seafile_dir }}/conf/admin.txt"
+
+- name: running setupscript (for sqlite backend)
+  command: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}/setup-seafile.sh auto -n {{ seafile_server_name }} -i {{ seafile_domain }} -p {{ seafile_fileserver_port }}"
+  args:
+    chdir: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}"
+    creates: "{{ seafile_dir }}/seafile-data"
+  become: true
+  become_user: "{{ seafile_user }}"
+  when: seafile_backend == 'sqlite'
+
+- name: running setupscript (for mysql backend)
+  shell: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}/setup-seafile-mysql.sh auto -n {{ seafile_server_name }} -i {{ seafile_domain }} -p {{ seafile_fileserver_port }} -e 1 -o 127.0.0.1 -u seafile -w '{{ seafile_db_password }}' -q 127.0.0.1 -c ccnet-db -s seafile-db -b seahub-db"
+  args:
+    chdir: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}"
+    executable: /bin/bash
+    creates: "{{ seafile_dir }}/seafile-data"
+  environment:
+    SERVER_NAME: "{{ seafile_server_name }}"
+    SERVER_IP: "{{ seafile_domain }}"
+    MYSQL_USER: seafile
+    MYSQL_USER_PASSWD: seafile_db_pass
+    MYSQL_USER_HOST: 127.0.0.1
+    MYSQL_ROOT_PASSWD: geheim
+  become: true
+  become_user: "{{ seafile_user }}"
+  when: seafile_backend == 'mysql'
+
+- name: creating seafile systemd service file
+  include_role:
+    name: tumf.systemd-service
+  vars:
+    systemd_service_name: seafile
+    systemd_service_description: seafile service
+    systemd_service_Unit_After: "{{ seafile_systemd_after }}"
+    systemd_service_Service_Type: oneshot
+    systemd_service_Service_User: "{{ seafile_user }}"
+    systemd_service_Service_Group: "{{ seafile_group | default(omit) }}"
+    systemd_service_Service_ExecStart: "{{ seafile_dir }}/seafile-server-latest/seafile.sh start"
+    systemd_service_Service_ExecStop: "{{ seafile_dir }}/seafile-server-latest/seafile.sh stop"
+    systemd_service_Service_RemainAfterExit: yes
+    systemd_service_Service_LimitNOFILE: "{{ seafile_ulimit | default(omit) }}"
+    systemd_service_Install_WantedBy: multi-user.target
+  become: true
+
+- name: creating seahub systemd service file
+  include_role:
+    name: tumf.systemd-service
+  vars:
+    systemd_service_name: seahub
+    systemd_service_description: seahub service
+    systemd_service_Unit_After:
+      - network.target
+      - seafile.service
+    systemd_service_Service_Type: oneshot
+    systemd_service_Service_User: "{{ seafile_user }}"
+    systemd_service_Service_Group: "{{ seafile_group | default(omit) }}"
+    systemd_service_Service_ExecStart: "{{ seafile_dir }}/seafile-server-latest/seahub.sh start"
+    systemd_service_Service_ExecStop: "{{ seafile_dir }}/seafile-server-latest/seahub.sh stop"
+    systemd_service_Service_RemainAfterExit: yes
+    systemd_service_Service_LimitNOFILE: "{{ seafile_ulimit | default(omit) }}"
+    systemd_service_Install_WantedBy: multi-user.target
+  become: true
+
+- name: "setting external url (ccnet): '{{ seafile_external_url }}'"
+  lineinfile:
+    path: "{{ seafile_dir }}/conf/ccnet.conf"
+    regexp: '^SERVICE_URL ='
+    line: 'SERVICE_URL = {{ seafile_external_url }}'
+  become: true
+  become_user: "{{ seafile_user }}"
+
+- name: "setting external url (seahub): '{{ seafile_external_url }}'"
+  lineinfile:
+    path: "{{ seafile_dir }}/conf/seahub_settings.py"
+    regexp: '^FILE_SERVER_ROOT ='
+    line: "FILE_SERVER_ROOT = '{{ seafile_external_url }}/seafhttp'"
+  become: true
+  become_user: "{{ seafile_user }}"
+
+- name: enabling webdav
+  lineinfile:
+    path: "{{ seafile_dir }}/conf/seafdav.conf"
+    regexp: '^enabled'
+    line: 'enabled = true'
+  when: not seafile_disable_webdav
+  become: true
+  become_user: "{{ seafile_user }}"
+
+- name: disabling webdav
+  lineinfile:
+    path: "{{ seafile_dir }}/conf/seafdav.conf"
+    regexp: '^enabled'
+    line: 'enabled = false'
+  when: seafile_disable_webdav
+  become: true
+  become_user: "{{ seafile_user }}"
+
+- name: setting webdav share name (no webserver)
+  lineinfile:
+    path: "{{ seafile_dir }}/conf/seafdav.conf"
+    regexp: '^share_name'
+    line: 'share_name = /'
+  when: not seafile_disable_webdav and seafile_webserver == 'none'
+  become: true
+  become_user: "{{ seafile_user }}"
+
+- name: setting webdav share name (for nginx)
+  lineinfile:
+    path: "{{ seafile_dir }}/conf/seafdav.conf"
+    regexp: '^share_name'
+    line: 'share_name = /seafdav'
+  when: not seafile_disable_webdav and seafile_webserver == 'nginx'
+  become: true
+  become_user: "{{ seafile_user }}"
+
+- name: adding webdav location to nginx
+  set_fact:
+    nginx_webdav_location: |
+      location /seafdav {
+        proxy_pass         http://127.0.0.1:8080;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Host $server_name;
+        client_max_body_size 0;
+        proxy_connect_timeout  36000s;
+        proxy_read_timeout  36000s;
+        proxy_send_timeout  36000s;
+        send_timeout  36000s;
+        # This option is only available for Nginx >= 1.8.0. See more details below.
+        proxy_request_buffering off;
+        access_log      /var/log/nginx/seafdav.access.log;
+        error_log       /var/log/nginx/seafdav.error.log;
+      }
+  when: not seafile_disable_webdav and seafile_webserver == 'nginx'
+
+- name: disabling webdav location on nginx
+  set_fact:
+    nginx_webdav_location: ""
+  when: nginx_webdav_location is not defined
+
+# (re-)starting services
+# ---------------------------------------------
+
+- name: enabling and starting seafile service
+  service:
+    name: seafile
+    state: restarted
+    enabled: yes
+  become: true
+
+- name: enabling and starting seahub service
+  service:
+    name: seahub
+    state: restarted
+    enabled: yes
+  become: true
+
+
+# request https cert
+# ------------------------------------------------
+
+- name: "[stopping nginx if running]"
+  service:
+    name: nginx
+    state: stopped
+  register: unused_disable
+  failed_when: "unused_disable|failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)"
+  when: request_https_cert
+
+- name: "managing https certificate for {{ seafile_domain }}"
+  include_role:
+    name: thefinn93.letsencrypt
+  vars:
+    letsencrypt_webroot_path: /var/www/html
+    letsencrypt_renewal_command_args: '--renew-hook "systemctl restart nginx"'
+  when: request_https_cert
+
+- name: "[start nginx if exists]"
+  service:
+    name: nginx
+    state: started
+  register: unused_disable
+  failed_when: "unused_disable|failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)"
+  when: request_https_cert
+
+- name: setting https nginx options
+  set_fact:
+    nginx_https_options_1: "ssl http2"
+    nginx_https_options_2: |
+      ssl_certificate      /etc/letsencrypt/live/{{ seafile_domain }}/fullchain.pem;
+      ssl_certificate_key  /etc/letsencrypt/live/{{ seafile_domain }}/privkey.pem;
+      ssl_protocols        TLSv1.1 TLSv1.2;
+      ssl_ciphers          HIGH:!aNULL:!MD5;
+  when: request_https_cert
+
+- name: setting empty https nginx options
+  set_fact:
+    nginx_https_options_1: ""
+    nginx_https_options_2: ""
+  when: not request_https_cert
+
+- name: adding http -> https redirect
+  set_fact:
+    nginx_vhost_http:
+      - listen: "80"
+        server_name: "{{ seafile_domain }}"
+        return: "301 https://{{ seafile_domain }}$request_uri"
+        filename: "{{ seafile_domain }}.80.conf"
+  when: request_https_cert
+
+# ------------------------------------------------
+# webserver
+- name: "[setting webserver vars]"
+  set_fact:
+    nginx_remove_default_vhost: true
+    nginx_vhosts:
+      - listen: "{{ seafile_webserver_port }} {{ nginx_https_options_1 }}"
+        server_name: "{{ seafile_domain }}"
+        extra_parameters: |
+          proxy_set_header X-Forwarded-For $remote_addr;
+          location / {
+            proxy_pass         http://127.0.0.1:{{ seafile_seahub_port }};
+            proxy_set_header   Host $http_host;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Host $server_name;
+            proxy_read_timeout  1200s;
+
+            # used for view/edit office file via Office Online Server
+            client_max_body_size 0;
+
+            access_log      /var/log/nginx/seahub.access.log;
+            error_log       /var/log/nginx/seahub.error.log;
+          }
+
+          location /seafhttp {
+            rewrite ^/seafhttp(.*)$ $1 break;
+            proxy_pass http://127.0.0.1:8082;
+            client_max_body_size 0;
+
+            proxy_connect_timeout  36000s;
+            proxy_read_timeout  36000s;
+            proxy_send_timeout  36000s;
+
+            send_timeout  36000s;
+            proxy_request_buffering off;
+          }
+
+          location /media {
+            root {{ seafile_dir }}/seafile-server-latest/seahub;
+          }
+
+          {{ nginx_webdav_location }}
+
+          {{ nginx_https_options_2 }}
+  when: seafile_webserver == 'nginx'
+
+- name: "[adding http -> https redirect if necessary]"
+  set_fact:
+    nginx_vhosts: "{{ nginx_vhost_http }} + {{ nginx_vhosts }}"
+  when: request_https_cert
+
+- name: installing and configuring nginx
+  include_role:
+    name: geerlingguy.nginx
+  when: seafile_webserver == 'nginx'
+  become: true
