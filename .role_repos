@@ -1,2 +1,3 @@
 adapter=adapter
 tumf_systemd_service=roles/tumf.systemd-service
+geerlingguy_nginx=roles/geerlingguy.nginx
