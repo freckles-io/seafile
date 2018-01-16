@@ -3,3 +3,4 @@ tumf_systemd_service=roles/tumf.systemd-service
 geerlingguy_nginx=roles/geerlingguy.nginx
 thefinn93_letsencrypt=roles/thefinn93.letsencrypt
 mysql=adapters/mysql
+geerlingguy_mysql=roles/geerlingguy.mysql

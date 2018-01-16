@@ -3,3 +3,4 @@ tumf_systemd_service=https://github.com/makkus/ansible-role-systemd-service.git
 geerlingguy_nginx=https://github.com/makkus/ansible-role-nginx.git
 thefinn93_letsencrypt=https://github.com/makkus/ansible-role-nginx.git
 mysql=https://github.com/freckles-io/adapter-mysql.git
+geerlingguy_mysql=https://github.com/makkus/ansible-role-mysql.git
