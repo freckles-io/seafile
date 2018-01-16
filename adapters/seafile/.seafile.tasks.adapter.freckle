@@ -14,7 +14,7 @@
     seafile_webserver_port: "{{ freckle_folder_vars.seafile_webserver_port | default(80) }}"
     seafile_db_password: "{{ freckle_folder_vars.seafile_db_password | default(omit) }}"
     seafile_disable_webdav: "{{ freckle_folder_vars.seafile_disable_webdav | default(false) }}"
-    seafile_admin_email: "{{ freckle_folder_vars.seafile_admin_email | mandatory }}"
+    seafile_admin_email: "{{ freckle_folder_vars.seafile_admin_email | default('admin@localhost.home') }}"
     request_https_cert: "{{ freckle_folder_vars.request_https_cert | default(false) }}"
 
 - name: "[setting letsencrypt email]"
