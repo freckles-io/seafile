@@ -1,0 +1,4 @@
+adapter=https://github.com/freckles-io/adapter-seafile.git
+tumf_systemd_service=https://github.com/makkus/ansible-role-systemd-service.git
+geerlingguy_nginx=https://github.com/makkus/ansible-role-nginx.git
+thefinn93_letsencrypt=https://github.com/makkus/ansible-role-nginx.git
