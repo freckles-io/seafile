@@ -182,6 +182,9 @@
   copy:
     content="{\"email\"{{ ":" }} \"{{ seafile_admin_email }}\", \"password\"{{ ":" }} \"change_me\"}"
     dest="{{ seafile_dir }}/conf/admin.txt"
+    owner="{{ seafile_user }}"
+    group="{{ seafile_group | default(omit) }}"
+  become: true
 
 - name: running setupscript (for sqlite backend)
   command: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}/setup-seafile.sh auto -n {{ seafile_server_name }} -i {{ seafile_domain }} -p {{ seafile_fileserver_port }}"
