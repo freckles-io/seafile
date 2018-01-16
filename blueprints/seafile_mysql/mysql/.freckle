@@ -1,0 +1,17 @@
+- freckle:
+   owner: mysql
+   group: mysql
+   staging_method: stow
+   stow_root: /
+- mysql:
+   mysql_root_password: geheim
+   mysql_root_password_update: no
+   mysql_databases:
+     - name: ccnet-db
+     - name: seafile-db
+     - name: seahub-db
+   mysql_users:
+     - name: seafile
+       host: localhost
+       password: seafile_db_pass
+       priv: "ccnet-db.*:ALL/seafile-db.*:ALL/seahub-db.*:ALL"
