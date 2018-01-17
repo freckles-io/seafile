@@ -5,6 +5,7 @@ To find out how to install *freckles* or use `inaugurate <https://github.com/mak
 To quickly setup a new Seafile server on your local machine, using the sqlite backend, the only command you need is:
 
 .. code-block:: console
+
     curl https://freckles.io | bash -s -- freckelize -r frkl:seafile -f blueprint:seafile_sqlite -t /var/lib/freckles
 
     # or, with *freckles* already installed:
@@ -17,6 +18,7 @@ To check whether Seafile was installed successfully, visit 'http://127.0.0.1' in
 This is probably not what you want though, as this service will only listen on the '127.0.0.1' interface, and the *sqlite* backend is not really suitable for production use. To costumize the install on a ready-to-use machine with configured dns, create a text file ``seafile.yml`` and add configuration values like this:
 
 .. code-block:: yaml
+
     seafile:
       seafile_admin_email: makkus@posteo.de
       seafile_domain: seafile.frkl.io
@@ -28,6 +30,7 @@ This is probably not what you want though, as this service will only listen on t
 Now issue:
 
 .. code-block:: console
+
     freckelize -r frkl:seafile -f blueprint:seafile_mysql -t /var/lib/freckles -v seafile.yml
 
 
