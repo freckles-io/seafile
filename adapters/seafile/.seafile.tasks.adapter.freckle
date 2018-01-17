@@ -3,7 +3,7 @@
     seafile_user: "{{ freckle_folder_vars.owner }}"
     seafile_group: "{{ freckle_folder_vars.group | default(omit) }}"
     seafile_dir: "{{ freckle_path }}"
-    seafile_version: "{{ freckle_folder_vars.seafile_version | default('6.2.3') }}"
+    seafile_version: "{{ freckle_folder_vars.seafile_version | default('6.2.4') }}"
     seafile_server_name: "{{ freckle_folder_vars.seafile_server_name | default('Seafile') }}"
     seafile_domain: "{{ freckle_folder_vars.seafile_domain | default('127.0.0.1') }}"
     seafile_seahub_port: "{{ freckle_folder_vars.seahub_port | default(8000) }}"
