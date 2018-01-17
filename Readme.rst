@@ -3,7 +3,7 @@ Description
 
 This is a repository containing the adapter and required roles to setup a  `Seafile <https://seafile.com>`_ server, either from scratch or using existing data.
 
-To find out how to install *freckles* or use `inaugurate <https://github.com/makkus/inaugurate>`_ to transparently install both *freckles* and *Seafile*, check out: `freckles bootstrap / install <https://docs.freckles.io/en/latest/bootstrap.html>`_
+To find out how to install *freckles* or use `inaugurate <https://github.com/makkus/inaugurate>`_ to transparently install both *freckles* and *Seafile* in one go, check out: `freckles bootstrap / install <https://docs.freckles.io/en/latest/bootstrap.html>`_
 
 Issues / Todos
 **************
