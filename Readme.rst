@@ -34,7 +34,7 @@ To check whether Seafile was installed successfully, visit 'http://127.0.0.1' in
 Full install, including mysql and https cert
 ============================================
 
-This is probably not what you want though, as this service will only listen on the '127.0.0.1' interface, and the *sqlite* backend is not really suitable for production use. To costumize the install on a ready-to-use machine with configured dns, create a text file ``seafile.yml`` and add configuration values like this:
+This is probably not what you want though, as this service will only listen on the '127.0.0.1' interface, and the *sqlite* backend is not really suitable for production use. To costumize the install on a ready-to-use machine with configured dns, create a folder `/var/lib/freckles/seafile_mysql` and put a text file called ``seafile.yml`` in it. Edit that file like this:
 
 .. code-block:: yaml
 
@@ -50,7 +50,7 @@ Now issue:
 
 .. code-block:: console
 
-    freckelize -r frkl:seafile -f blueprint:seafile_mysql -t /var/lib/freckles -v seafile.yml
+    freckelize -r frkl:seafile -f blueprint:seafile_mysql -t /var/lib/freckles -v /var/lib/freckles/seafile_mysql/seafile.yml
 
 
 This will install and configure both *mysql* and *seafile* (in that order), then it will request a *letsencrypt* https certificate for your domain. Finally it'll install *nginx* and configure it to use the just requested https certificate as well as forward all incoming requests to the appropriate Seafile services (*seafile*, *seahub* and *webdav*).
@@ -60,10 +60,8 @@ Backup
 
 All the important data will live under ``/var/lib/freckles/seafile_mysql`` which you can easily backup.
 
-If you wanted to restore a vanilla server using such a backup, all you needed to do was put the data on the server, and run:
+If you wanted to restore a vanilla server using such a backup, all you needed to do was put the data on the server (preferably to the same path), and run:
 
 .. code-block:: console
 
-   freckelize -r frkl:seafile -f /path/to/the/data -v seafile.yml
-
-(ideally you copied the ``seafile.yml`` file into the ``seafile_mysql`` folder before backing up, so you have everything can be backed up together. Haven't really thought about how to make that automatic yet.)
+   freckelize -r frkl:seafile -f /var/lib/freckles/seafile_mysql -v /var/lib/freckles/seafile_mysql/seafile.yml
