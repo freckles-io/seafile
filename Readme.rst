@@ -55,6 +55,8 @@ Now issue:
 
 This will install and configure both *mysql* and *seafile* (in that order), then it will request a *letsencrypt* https certificate for your domain. Finally it'll install *nginx* and configure it to use the just requested https certificate as well as forward all incoming requests to the appropriate Seafile services (*seafile*, *seahub* and *webdav*).
 
+Now change the password from 'change_me' to something proper!
+
 Backup
 ******
 
