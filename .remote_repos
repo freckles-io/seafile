@@ -1,6 +1,5 @@
-seafile=https://github.com/freckles-io/adapter-seafile.git
-tumf_systemd_service=https://github.com/makkus/ansible-role-systemd-service.git
-geerlingguy_nginx=https://github.com/makkus/ansible-role-nginx.git
-thefinn93_letsencrypt=https://github.com/makkus/ansible-role-nginx.git
-mysql=https://github.com/freckles-io/adapter-mysql.git
-geerlingguy_mysql=https://github.com/makkus/ansible-role-mysql.git
+roles/tumf_systemd_service=https://github.com/makkus/ansible-role-systemd-service.git
+roles/geerlingguy_nginx=https://github.com/makkus/ansible-role-nginx.git
+roles/thefinn93_letsencrypt=https://github.com/makkus/ansible-role-nginx.git
+adapters/mysql=https://github.com/freckles-io/adapter-mysql.git
+roles/geerlingguy_mysql=https://github.com/makkus/ansible-role-mysql.git
