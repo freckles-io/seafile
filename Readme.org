@@ -1,0 +1,7 @@
+#+TITLE:	/freckelize/ adapter: Seafile
+#+AUTHOR:	Markus Binsteiner
+#+EMAIL:	makkus@posteo.de
+#+DATE:		2018-01-17
+#+UPDATE:	09:33:29
+
+This is a repository containing the adapter and required roles to setup a [[https://seafile.com][Seafile]] server, either from scratch or using existing data.
