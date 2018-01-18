@@ -1,0 +1,17 @@
+- freckle:
+    owner: seafile
+    group: seafile
+
+- seafile:
+    seafile_admin_email: {{ cookiecutter.seafile_admin_email }}
+    seafile_backend: sqlite
+    seafile_server_name: {{ cookiecutter.seafile_server_name }} # 3-15 characters, only English letters, digits and underscore ('_') are allowed
+    seafile_domain: {{ cookiecutter.seafile_domain }} # ip address or domain name used by this server
+    seafile_webserver: nginx
+    seafile_webserver_port: {{ cookiecutter.seafile_webserver_port }}
+    request_https_cert: {{ cookiecutter.request_https_cert }}
+    # seafile_version: 6.2.3
+    # seafile_external_port: 8080
+    # seafile_ulimit: 30000
+    # seafile_fileserver_port: 8082  # tcp port used by seafile fileserver
+    # seafile_disable_webdav: false

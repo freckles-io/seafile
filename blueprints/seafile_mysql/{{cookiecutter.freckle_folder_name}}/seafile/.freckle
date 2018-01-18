@@ -3,17 +3,17 @@
     group: seafile
 
 - seafile:
-    seafile_admin_email: admin@localhost.home  ## MANDATORY
+    seafile_admin_email: {{ cookiecutter.seafile_admin_email }}
     seafile_server_name: My_Seafile # 3-15 characters, only English letters, digits and underscore ('_') are allowed
-    seafile_domain: "127.0.0.1"                 ## ip address or domain name used by this server
-    request_https_cert: false                   ## requests letsencrypt https cert, make sure you've setup dns before you enable this
+    seafile_domain: {{ cookiecutter.seafile_domain }}                 ## ip address or domain name used by this server
+    request_https_cert: {{ cookiecutter.request_https_cert }}                   ## requests letsencrypt https cert, make sure you've setup dns before you enable this
     # letsencrypt_email: something@other.org    ## OPTIONAL, uses admin email if not set
     seafile_backend: mysql
     seafile_db_password: seafile_db_pass
+    seafile_webserver: nginx
+    seafile_webserver_port: {{ cookiecutter.seafile_webserver_port }}
     # seafile_version: 6.2.3
     # seafile_external_port: 8080
     # seafile_ulimit: 30000
     # seafile_fileserver_port: 8082  # tcp port used by seafile fileserver
-    # seafile_webserver: nginx
-    # seafile_webserver_port: 80
     # seafile_disable_webdav: false

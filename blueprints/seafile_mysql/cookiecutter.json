@@ -1,0 +1,8 @@
+{
+    "freckle_folder_name": "seafile",
+    "seafile_admin_email": "admin@localhost.home",
+    "seafile_domain": "localhost",
+    "seafile_server_name": "seafile",
+    "seafile_webserver_port": 80,
+    "request_https_cert": ["false", "true"]
+}
