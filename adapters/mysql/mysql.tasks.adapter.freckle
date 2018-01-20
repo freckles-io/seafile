@@ -14,7 +14,7 @@
 - name: "adjusting apparmor"
   lineinfile:
     path: /etc/apparmor.d/tunables/alias
-    line: "alias /var/lib/mysql/ -> {{ freckle_path }}/mysql,"
+    line: "alias /var/lib/mysql/ -> {{ freckle_path }}/mysql/,"
   when: aa.stat.exists
   become: true
 
