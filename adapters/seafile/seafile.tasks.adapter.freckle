@@ -193,6 +193,8 @@
     creates: "{{ seafile_dir }}/seafile-data"
   become: true
   become_user: "{{ seafile_user }}"
+  environment:
+    PATH: /usr/bin:/bin
   when: seafile_backend == 'sqlite'
 
 - name: running setupscript (for mysql backend)
