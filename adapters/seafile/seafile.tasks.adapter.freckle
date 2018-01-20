@@ -137,7 +137,7 @@
     recurse: true
   become: true
 
-- name: downloading seafile
+- name: downloading seafile server package
   get_url:
     url: "https://download.seadrive.org/seafile-server_{{ seafile_version }}_x86-64.tar.gz"
     validate_certs: yes
@@ -187,7 +187,7 @@
   become: true
 
 - name: running setupscript (for sqlite backend)
-  command: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}/setup-seafile.sh auto -n {{ seafile_server_name }} -i {{ seafile_domain }} -p {{ seafile_fileserver_port }}"
+  shell: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}/setup-seafile.sh auto -n {{ seafile_server_name }} -i {{ seafile_domain }} -p {{ seafile_fileserver_port }}"
   args:
     chdir: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}"
     creates: "{{ seafile_dir }}/seafile-data"
