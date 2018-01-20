@@ -6,6 +6,8 @@
     mysql_users: "{{ freckle_vars.mysql_users | default(omit) }}"
     mysql_datadir: /var/lib/mysql
 
+
+
 - name: "[install mysql]"
   include_role:
     name: geerlingguy.mysql
