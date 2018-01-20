@@ -5,6 +5,11 @@ This is a repository containing the adapter and required roles to setup a  `Seaf
 
 To find out how to install *freckles* or use `inaugurate <https://github.com/makkus/inaugurate>`_ to transparently install both *freckles* and *Seafile* in one go, check out: `freckles bootstrap / install <https://docs.freckles.io/en/latest/bootstrap.html>`_
 
+Supported
+*********
+
+Currently only tested on Debian Stretch, might well work on other Debian-based distributions. Supporting others would be easy as well, but I don't have the time. Pull requests welcome.
+
 Issues / Todos
 **************
 
