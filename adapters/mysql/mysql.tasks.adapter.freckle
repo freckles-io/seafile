@@ -8,7 +8,7 @@
 
 - name: "[checking if apparmour is used]"
   stat:
-    path: /etc/apparmour.d/tunables/alias
+    path: /etc/apparmor.d/tunables/alias
   register: aa
 
 - name: "adjusting apparmor"
