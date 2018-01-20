@@ -6,7 +6,22 @@
     mysql_users: "{{ freckle_vars.mysql_users | default(omit) }}"
     mysql_datadir: /var/lib/mysql
 
+- name: "[checking if apparmour is used]"
+  stat:
+    path: /etc/apparmour.d/tunables/alias
+  register: aa
 
+- name: "adjusting apparmor"
+  lineinfile:
+    path: /etc/apparmor.d/tunables/alias
+    line: "alias /var/lib/mysql/ -> {{ freckle_path }}/mysql,"
+  when: aa.stat.exists
+
+- name: "restarting apparmor"
+  service:
+    name: apparmor
+    state: restarted
+  when: aa.stat.exists
 
 - name: "[install mysql]"
   include_role:

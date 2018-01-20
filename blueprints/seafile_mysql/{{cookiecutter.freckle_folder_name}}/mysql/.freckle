@@ -2,7 +2,7 @@
    owner: mysql
    group: mysql
    staging_method: stow
-   stow_root: /
+   stow_root: /var/lib
 - mysql:
    # mysql_root_password: secret
    # mysql_root_password_update: no
