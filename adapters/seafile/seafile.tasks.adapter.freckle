@@ -41,7 +41,7 @@
 
 - name: "[setting external url:port]"
   set_fact:
-    seafile_external_url: "{{ seafile_external_url }}:{{ seafile_port }}"
+    seafile_external_url: "{{ seafile_external_url }}:{{ seafile_webserver_port }}"
   when: seafile_webserver_port != '443' and seafile_webserver_port != '80'
 
 - name: "[setting external url (https)]"
