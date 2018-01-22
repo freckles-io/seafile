@@ -14,7 +14,7 @@ priority: 1000    # needed, because we want to install mysql first
 
 available_vars:
   seafile_admin_email:
-    help: "the email of the (first) admin user, must be a valid email address ('admin@localhost' for example won't work"
+    help: "the email of the (first) admin user, must be a valid email address ('admin@localhost' for example won't work)"
   seafile_domain:
     help: "the domain or ip address used by this server"
   seafile_server_name:
