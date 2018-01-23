@@ -210,9 +210,8 @@
     MYSQL_USER_PASSWD: seafile_db_pass
     MYSQL_USER_HOST: 127.0.0.1
     MYSQL_ROOT_PASSWD: geheim
-  become: true
-  environment:
     PATH: /usr/bin:/bin
+  become: true
   become_user: "{{ seafile_user }}"
   when: seafile_backend == 'mysql'
 
