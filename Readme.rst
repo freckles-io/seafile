@@ -49,10 +49,10 @@ I've written a blog post about how to use this adapter for more involved setups.
 Backup
 ******
 
-All the important data will live under ``/var/lib/freckles/seafile_mysql`` which you can easily backup.
+All the important data will live somewhere under ``/var/lib/freckles/<your_folder_name>`` which you can easily backup.
 
 If you wanted to restore a vanilla server using such a backup, all you needed to do was put the data on the server (preferably to the same path), and run:
 
 .. code-block:: console
 
-   freckelize -r frkl:seafile -f /var/lib/freckles/seafile_mysql -v /var/lib/freckles/seafile_mysql/seafile.yml
+   freckelize -r frkl:seafile -f /var/lib/freckles/<folder_name>>
