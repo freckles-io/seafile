@@ -44,7 +44,7 @@ Now change the password from 'change_me' to something proper!
 More involved setups
 ====================
 
-I've written a blog post about how to use this adapter for more involved setups. Check it out [here](https://freckles.io/blog/example-seafile).
+I've written a blog post about how to use this adapter for more involved setups. Check it out `here <https://freckles.io/blog/example-seafile>`_.
 
 Backup
 ******
