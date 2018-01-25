@@ -5,6 +5,7 @@ This is a repository containing the adapter and required roles to setup a  `Seaf
 
 To find out how to install *freckles* or use `inaugurate <https://github.com/makkus/inaugurate>`_ to transparently install both *freckles* and *Seafile* in one go, check out: `freckles bootstrap / install <https://docs.freckles.io/en/latest/bootstrap.html>`_
 
+
 Supported
 *********
 
@@ -27,40 +28,23 @@ To quickly setup a new Seafile server on your local machine, using the sqlite ba
 
 .. code-block:: console
 
-    curl https://freckles.io | bash -s -- freckelize -r frkl:seafile -f blueprint:seafile_sqlite -t /var/lib/freckles
+    bash <(curl https://freckles.io) freckelize -pw true -r frkl:seafile -f blueprint:seafile_sqlite -t /var/lib/freckles
 
     # or, with 'freckles' already installed:
 
     freckelize -r frkl:seafile -f blueprint:seafile_sqlite -t /var/lib/freckles
 
 
-To check whether Seafile was installed successfully, visit 'http://127.0.0.1' in a browser, and use the username 'admin@localhost.home' and password 'change_me'.
+This will ask you a few details about your setup, which you can all keep at their defaults if you want.
+To check whether Seafile was installed successfully, visit 'http://127.0.0.1' in a browser, and use the username 'admin@localhost.home' (if you didn't change it) and password 'change_me'.
 
-Full install, including mysql and https cert
-============================================
-
-This is probably not what you want though, as this service will only listen on the '127.0.0.1' interface, and the *sqlite* backend is not really suitable for production use. To costumize the install on a ready-to-use machine with configured dns, create a folder `/var/lib/freckles/seafile_mysql` and put a text file called ``seafile.yml`` in it. Edit that file like this:
-
-.. code-block:: yaml
-
-    seafile:
-      seafile_admin_email: makkus@posteo.de
-      seafile_domain: seafile.frkl.io
-      request_https_cert: true
-
-
-(obviously, use your own domain and email address)
-
-Now issue:
-
-.. code-block:: console
-
-    freckelize -r frkl:seafile -f blueprint:seafile_mysql -t /var/lib/freckles -v /var/lib/freckles/seafile_mysql/seafile.yml
-
-
-This will install and configure both *mysql* and *seafile* (in that order), then it will request a *letsencrypt* https certificate for your domain. Finally it'll install *nginx* and configure it to use the just requested https certificate as well as forward all incoming requests to the appropriate Seafile services (*seafile*, *seahub* and *webdav*).
 
 Now change the password from 'change_me' to something proper!
+
+More involved setups
+====================
+
+I've written a blog post about how to use this adapter for more involved setups. Check it out [here](https://freckles.io/blog/example-seafile).
 
 Backup
 ******
