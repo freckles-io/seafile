@@ -150,6 +150,7 @@
     src: "{{ target_path.dest }}"
     dest: "{{ seafile_dir }}"
     creates: "{{ seafile_dir }}/seafile-server-{{ seafile_version }}"
+    remote_src: true
   become: true
 
 - name: create seafile config directory
